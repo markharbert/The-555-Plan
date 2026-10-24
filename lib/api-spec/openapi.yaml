@@ -11,6 +11,128 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /content:
+    get:
+      operationId: getContent
+      summary: Public program content
+      responses:
+        "200":
+          description: Program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramContent"
+  /me:
+    get:
+      operationId: getMe
+      summary: Current enrollment
+      responses:
+        "200":
+          description: Session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+  /enroll:
+    post:
+      operationId: enroll
+      summary: Finish account setup with email consent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentInput"
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+  /profile:
+    patch:
+      operationId: updateProfile
+      summary: Save a journey step or video plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+  /journey:
+    get:
+      operationId: getJourney
+      summary: Personal dashboard and live progress
+      responses:
+        "200":
+          description: Journey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Journey"
+  /missions/{missionId}:
+    parameters:
+      - in: path
+        name: missionId
+        required: true
+        schema: { type: integer, minimum: 1, maximum: 15 }
+    get:
+      operationId: getMission
+      summary: Open an unlocked mission
+      responses:
+        "200":
+          description: Mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+    patch:
+      operationId: updateMission
+      summary: Complete or undo a mission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MissionInput"
+      responses:
+        "200":
+          description: Updated journey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Journey"
+  /activity:
+    get:
+      operationId: getActivity
+      summary: Recent personal activity
+      responses:
+        "200":
+          description: Activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Activity" }
+  /settings:
+    get:
+      operationId: getSettings
+      summary: Account and integration status
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountSettings"
   /healthz:
     get:
       operationId: healthCheck
@@ -26,6 +148,163 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    Enrollment:
+      type: object
+      required: [enrolled]
+      properties:
+        enrolled: { type: boolean }
+        profile: { $ref: "#/components/schemas/UserProfile" }
+    EnrollmentInput:
+      type: object
+      required: [firstName, lastName, emailConsent]
+      properties:
+        firstName: { type: string, minLength: 1, maxLength: 80 }
+        lastName: { type: string, minLength: 1, maxLength: 80 }
+        emailConsent: { type: boolean }
+        source: { type: string, maxLength: 500 }
+        utm:
+          type: object
+          additionalProperties: { type: string }
+    ProfileInput:
+      type: object
+      properties:
+        firstName: { type: string, minLength: 1, maxLength: 80 }
+        lastName: { type: string, minLength: 1, maxLength: 80 }
+        welcomeDone: { type: boolean }
+        fears:
+          type: array
+          maxItems: 6
+          items: { type: string }
+        baselineComfort: { type: integer, minimum: 1, maximum: 10 }
+        fearCheckDone: { type: boolean }
+        business: { type: string, maxLength: 2000 }
+        audience: { type: string, maxLength: 2000 }
+        why: { type: string, maxLength: 2000 }
+        commitment: { type: string, maxLength: 500 }
+        pockets:
+          type: array
+          maxItems: 4
+          items: { type: string }
+        delegate: { type: string, maxLength: 2000 }
+        notifications: { type: string, maxLength: 2000 }
+        partner: { type: string, maxLength: 120 }
+        planDone: { type: boolean }
+        mindsetDone: { type: boolean }
+    UserProfile:
+      type: object
+      required: [id, firstName, lastName, email, role, welcomeDone, fearCheckDone, planDone, mindsetDone, fears, baselineComfort, business, audience, why, commitment, pockets, delegate, notifications, partner, syncStatus, createdAt]
+      properties:
+        id: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string }
+        role: { type: string, enum: [user, admin] }
+        welcomeDone: { type: boolean }
+        fearCheckDone: { type: boolean }
+        planDone: { type: boolean }
+        mindsetDone: { type: boolean }
+        fears: { type: array, items: { type: string } }
+        baselineComfort: { type: ["integer", "null"] }
+        business: { type: string }
+        audience: { type: string }
+        why: { type: string }
+        commitment: { type: string }
+        pockets: { type: array, items: { type: string } }
+        delegate: { type: string }
+        notifications: { type: string }
+        partner: { type: string }
+        syncStatus: { type: string, enum: [synced, pending, failed] }
+        createdAt: { type: string }
+    Mission:
+      type: object
+      required: [id, round, position, title, prompt, cues, maxSeconds, completed, unlocked, canUndo, posted, wentLive]
+      properties:
+        id: { type: integer }
+        round: { type: integer }
+        position: { type: integer }
+        title: { type: string }
+        prompt: { type: string }
+        cues: { type: array, items: { type: string } }
+        alternateTitle: { type: string }
+        alternateCues: { type: array, items: { type: string } }
+        maxSeconds: { type: integer }
+        completed: { type: boolean }
+        unlocked: { type: boolean }
+        canUndo: { type: boolean }
+        feelingScore: { type: ["integer", "null"] }
+        completedAt: { type: ["string", "null"] }
+        posted: { type: boolean }
+        wentLive: { type: boolean }
+    MissionInput:
+      type: object
+      required: [completed]
+      properties:
+        completed: { type: boolean }
+        feelingScore: { type: integer, minimum: 1, maximum: 10 }
+        posted: { type: boolean }
+        wentLive: { type: boolean }
+        alternate: { type: boolean }
+    Round:
+      type: object
+      required: [id, name, intro, maxSeconds]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        intro: { type: string }
+        maxSeconds: { type: integer }
+    MindsetCard:
+      type: object
+      required: [id, title, body, fears]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        fears: { type: array, items: { type: string } }
+    ProgramContent:
+      type: object
+      required: [rounds, missions, mindset, fears]
+      properties:
+        rounds: { type: array, items: { $ref: "#/components/schemas/Round" } }
+        missions: { type: array, items: { $ref: "#/components/schemas/Mission" } }
+        mindset: { type: array, items: { $ref: "#/components/schemas/MindsetCard" } }
+        fears: { type: array, items: { type: string } }
+    JourneyStats:
+      type: object
+      required: [completed, percent, videosRecorded, minutesOnCamera, baselineComfort, latestComfort]
+      properties:
+        completed: { type: integer }
+        percent: { type: integer }
+        videosRecorded: { type: integer }
+        minutesOnCamera: { type: number }
+        baselineComfort: { type: ["integer", "null"] }
+        latestComfort: { type: ["integer", "null"] }
+    Journey:
+      type: object
+      required: [profile, missions, rounds, mindset, stats, nextPath, nextTitle]
+      properties:
+        profile: { $ref: "#/components/schemas/UserProfile" }
+        missions: { type: array, items: { $ref: "#/components/schemas/Mission" } }
+        rounds: { type: array, items: { $ref: "#/components/schemas/Round" } }
+        mindset: { type: array, items: { $ref: "#/components/schemas/MindsetCard" } }
+        stats: { $ref: "#/components/schemas/JourneyStats" }
+        nextPath: { type: string }
+        nextTitle: { type: string }
+    Activity:
+      type: object
+      required: [id, type, createdAt]
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        missionId: { type: ["integer", "null"] }
+        createdAt: { type: string }
+    AccountSettings:
+      type: object
+      required: [profile, emailConsent, clickfunnelsConfigured, phase]
+      properties:
+        profile: { $ref: "#/components/schemas/UserProfile" }
+        emailConsent: { type: boolean }
+        clickfunnelsConfigured: { type: boolean }
+        phase: { type: integer }
     HealthStatus:
       type: object
       properties:

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "The 555 Plan"
+description = "Mark Harbert’s guided video confidence journey, with fifteen small missions, a personal video plan, and private practice."
+version = "1.0.0"
+id = "artifacts/the-555-plan"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23914
+
+[services.development]
+run = "pnpm --filter @workspace/the-555-plan run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/the-555-plan", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/the-555-plan/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23914"
+BASE_PATH = "/"

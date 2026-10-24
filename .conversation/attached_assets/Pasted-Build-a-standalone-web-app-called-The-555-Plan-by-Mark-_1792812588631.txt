@@ -1,0 +1,405 @@
+Build a standalone web app called "The 555 Plan" by Mark Harbert. It costs users nothing. There are no payments, no checkout, and no paid tiers anywhere in the app. Users must register for an account to use it. The app helps beginners get over their fear of being on camera and record their first videos, step by step, right inside the browser.
+
+**Two big goals for the whole build:**
+1. **It must feel premium.** It costs nothing, but it should never feel cheap. Users should feel like this is the most incredible no-cost app they've ever been given, and like something they want to come back to over and over.
+2. **It must lead them step by step.** Every screen should make the next step obvious: do this, then do this, straight into the 555 Plan.
+
+**Copy rule: never use the word "free" anywhere in the user-facing app.** Not on the landing page, buttons, emails, or anywhere else. Use phrases like "no-cost account," "on the house," or "yours to keep" when it needs saying at all. (The word may appear in this prompt only as an instruction to you.)
+
+**Brand guide:** I am attaching my brand guide to this prompt. Build the entire app from it: the colors, fonts, logo usage, spacing, button styles, and layout guidance. Where the brand guide and this prompt differ on a visual detail, follow the brand guide.
+
+Mark teaches that you can't make your 100th video without making your first. The app walks people through 15 small video "missions" in three rounds of five, records each one in the browser, tracks how their confidence grows, and then graduates them to their first public video.
+
+Build it in the phases listed at the bottom. Finish and test each phase before starting the next.
+
+---
+
+## 1. Tech and general requirements
+
+- Full-stack web app with a Postgres database.
+- Fully responsive. It must work well on desktop and laptop (the main use case, with webcam recording) and still be usable on phones and tablets.
+- User accounts (name, email, password) so users can come back and keep their progress. Include password reset by email.
+- Two roles: `user` and `admin`. Admins get a full backend (section 13).
+- All AI calls happen on the server. Never expose API keys to the browser.
+- Store all app copy (mission prompts, mindset cards, default cue cards) in the database or a single content file so it can be edited later without code changes.
+
+## 2. Brand, Design, and Premium Feel
+
+**Follow the attached brand guide** for colors, fonts, logo, spacing, and layout. Key rules from it to respect even if you skim:
+- Dark navy is the primary brand color (never black).
+- All buttons are red. Red is the action color.
+- Text links are a clear link blue so people know they can click them.
+- Lots of white space.
+
+**Premium feel (applies to every screen)**
+- Think high-end SaaS product, not a basic form app. Polished, calm, confident.
+- Generous spacing, a clear type scale from the brand guide fonts, and strong visual hierarchy.
+- Soft shadows, rounded cards, subtle borders, and smooth transitions (150 to 250ms) on hover, page changes, and checkmarks.
+- Satisfying micro-moments: an animated checkmark when a mission is marked done, a progress bar that fills smoothly, and a tasteful celebration (confetti or a glow) when a round is finished and at graduation. Keep it classy, not cartoonish.
+- Polished empty states, loading skeletons instead of spinners, and friendly error messages. No raw browser alerts.
+- Consistent custom icons (one icon set throughout, such as Lucide).
+- A personal welcome on the dashboard: "Welcome back, {first name}" plus a one-line nudge toward their next step.
+- Accessible: good color contrast, keyboard friendly, visible focus states.
+
+**Copy and tone**
+- Friendly, encouraging, coaching tone. Short sentences. Talk to the user as "you."
+- Never use em dashes anywhere in the app copy.
+- Never use the word "free" in user-facing copy.
+
+## 2b. Members Area Layout: Left Sidebar and Step-by-Step Journey
+
+After login, every page uses the same layout: a **premium left sidebar** for all navigation and the main content on the right. No top navigation menu.
+
+**The sidebar**
+- Dark navy background from the brand guide, with the logo at the top.
+- Below the logo, a **555 Plan progress card**: a progress bar or ring showing "X of 15 missions done" and a percentage. It updates live the moment they check off a mission.
+- Then the **numbered journey**, in order, so it reads like "do this, then do this":
+  1. **Welcome** (a short intro and how the app works)
+  2. **Fear Check**
+  3. **My Video Plan**
+  4. **Mindset**
+  5. **The 555 Plan** (expands to show Round 1, Round 2, and Round 3, each with its own mini progress like "3/5")
+  6. **First Public Video**
+  7. **30-Day Challenge**
+- Each journey step shows its status: a green checkmark when done, a highlighted state for the current step, and a lock icon for steps not unlocked yet. Clicking a locked step shows a short message telling them which step to finish first.
+- Below the journey, a divider, then the toolbox links: **My Videos**, **My Progress**, **Settings**.
+- At the bottom: the user's name and initials avatar, a log out link, and the small "Brought to you by Mark Harbert" credit.
+- The active page is clearly highlighted.
+- On tablets and phones, the sidebar collapses into a slide-out drawer opened by a menu button, with the 555 Plan progress bar kept visible at the top of the screen.
+
+**The dashboard ("My Journey")**
+- The first thing they see after login.
+- A big "Your next step" card at the top with one red button that takes them straight to it (for example, "Record Round 1, Mission 3: A book that shaped you").
+- The 555 Plan progress bar, large and front and center, until all 15 are done.
+- A visual checklist of all 15 missions grouped by round, with checkmarks on completed ones, so they can see exactly how far they've come.
+- Quick stats: videos recorded, minutes on camera, current comfort score vs. where they started.
+
+**Checking off missions**
+- Every mission has a clear "Mark as Done" checkbox or button. Checking it off updates the mission list, the sidebar, the dashboard checklist, and the progress bar instantly.
+- They can uncheck a mission if they checked it by mistake (with a quick confirm), unless the next round has already started.
+
+## 3. Registration and ClickFunnels Integration
+
+Registration is required. Nobody can use the app without an account.
+
+**Landing page (premium, not "free stuff" looking)**
+- Built to the brand guide with the same premium feel as the app.
+- Headline about getting over camera fear and recording your first videos in 15 small steps.
+- A short "How it works" section with the 3 rounds as three elegant cards (Just Me, Test Group, Going Live).
+- A preview image or mockup of the members area with the sidebar and progress bar, so they see the quality before signing up.
+- A short "From Mark" section with his photo placeholder and a 2 to 3 sentence note.
+- Do not use the word "free." Use wording like "Set up your no-cost account" near the button.
+- One red button repeated at the top and bottom: "Set Up My Account."
+
+**Registration**
+- Clean, focused registration page (or modal) with the logo and one short line: "Set up your no-cost account and start your 555 Plan today."
+- Fields: first name, last name, email, password, and a required checkbox agreeing to receive emails from Mark Harbert.
+- After registering, take them straight into Step 1 of the journey with a warm welcome.
+- Check for duplicate emails. If the email already has an account, point them to log in.
+- Save the user with signup date, source, and UTM parameters if present in the URL.
+
+**ClickFunnels integration (direct API, not a webhook)**
+When someone registers, add them to Mark's ClickFunnels workspace as a contact using the ClickFunnels v2 API.
+
+- Read the current API docs at https://developers.myclickfunnels.com before writing this code and follow them exactly.
+- Authenticate with a Bearer token. Store everything in environment variables (Replit Secrets), never in code:
+  - `CLICKFUNNELS_API_TOKEN`
+  - `CLICKFUNNELS_SUBDOMAIN` (the account subdomain, so the API base is `https://{subdomain}.myclickfunnels.com/api/v2`)
+  - `CLICKFUNNELS_WORKSPACE_ID`
+- On registration, upsert the contact in the workspace (create it, or update it if the email already exists in ClickFunnels) with first name, last name, and email. Save the returned ClickFunnels contact ID on the user record.
+- Apply a tag `555 Plan - Registered`. Create the tag in the workspace if it doesn't exist yet.
+- Apply progress tags as the user moves through the app, so Mark can trigger ClickFunnels workflows and emails:
+  - `555 Plan - Onboarding Done`
+  - `555 Plan - Round 1 Done`
+  - `555 Plan - Round 2 Done`
+  - `555 Plan - Round 3 Done`
+  - `555 Plan - Graduated`
+  - `555 Plan - 30 Day Challenge Started`
+  - `555 Plan - 30 Day Challenge Done`
+- Let the admin rename these tags in Settings (section 13) without code changes.
+- Run the ClickFunnels calls in the background. A ClickFunnels error must never block registration or progress. If a call fails, save it to a `sync_queue` table and retry with backoff (for example after 1 minute, 5 minutes, 30 minutes, 2 hours). Store the last error message.
+- Track sync status on each user: synced, pending, or failed.
+- Add a "Test ClickFunnels Connection" button in admin Settings that confirms the token, subdomain, and workspace work.
+
+## 4. Onboarding: Fear Check and Profile
+
+After signup, a short 3-step onboarding.
+
+**Step 1: Fear Check.** "Which of these hold you back?" Multi-select:
+- Being judged by others
+- Being vulnerable
+- Not knowing what to say
+- Negative comments and trolls
+- Perfectionism (it has to be just right)
+- Not being techie
+
+Then a slider: "How comfortable are you on camera right now?" from 1 to 10. Save this as their baseline score.
+
+**Step 2: About You.** These power the AI cue cards.
+- What do you do or sell? (open text, example placeholder: "I share essential oils" or "I help moms start an online business")
+- Who do you want to reach? (open text)
+- Why did you start? (optional open text)
+
+**Step 3: My Plan.** Turn these questions into a simple form and show the result as "My Video Plan" on their dashboard:
+- How much time can I commit to video each day or week?
+- When are my pockets of time? (morning, lunch break, evening, weekends; multi-select)
+- What can I delegate or drop to make more time? (open text)
+- Which notifications will I turn off while I record? (open text)
+- Who will be my accountability partner? (name, optional)
+
+Add a line under the form: "The best plan is the one you'll actually follow."
+
+## 5. Mindset Cards
+
+Short reframes, one per fear. After the Fear Check, show the cards that match the fears they picked, one at a time, swipeable or with a "Next" button. Each card is a headline plus 2 to 4 short sentences. Keep all of them available later in a "Mindset" page.
+
+Seed these cards (edit wording lightly if needed, keep the meaning and tone):
+
+1. **It's about them, not you.** Every viewer speaks one language: "What's in it for me?" When you focus on helping the person watching, the fear gets quieter.
+2. **Not everyone will like you. Good.** Good marketing attracts the right people and repels the rest. If 100 people watch and 2 respond, your video did its job.
+3. **Vulnerable is relatable.** Share real challenges you've faced. People connect with what they can relate to. Use good judgment on what stays private.
+4. **You already know what to say.** You could talk about your passion for hours with a friend. The red light on the camera doesn't change what you know.
+5. **Trolls are about them.** People who attack you usually aren't at peace with themselves. Have compassion, then block and delete. Blocking and deleting is a money-making activity.
+6. **Lock in who you are.** When you know your identity, comments can't shake it. Watch your "I am" and "I always" statements. What you focus on grows.
+7. **Perfectionism is a cover for insecurity.** Imperfect action beats perfect inaction every single day. You can't steer a parked car.
+8. **Embrace the suck.** Your first video will be bad. So was everyone's. Jump out of the plane and figure out the parachute on the way down.
+9. **You don't need to be techie.** If you can post a photo, you can post a video. Same button.
+
+## 6. The 555 Plan: 15 Missions
+
+Three rounds of five missions. Missions unlock in order. Round 2 unlocks when all of Round 1 is done. Round 3 unlocks when Round 2 is done.
+
+### Round 1: Just Me
+Intro text: "These five videos are for your eyes only. Nobody else sees them. Keep each one to 1 minute or less. The goal is simple: get comfortable on camera."
+Max length: 60 seconds.
+
+1. **Share your why.** The passion and reasons driving your business.
+2. **A peek into your day.** A snapshot of your daily life with a personal touch.
+3. **A book that shaped you.** A book that changed your life or business.
+4. **A hobby that sparks you.** Something that recharges and inspires you.
+5. **A challenge you overcame.** A personal challenge and how you got through it.
+
+### Round 2: Test Group
+Intro text: "Now you'll post five 1-minute videos in a private Facebook group where you are the only member. Still private, but you're building the habit of hitting post."
+Max length: 60 seconds.
+Include a collapsible "How to create your private Facebook test group" help box with simple steps: on Facebook go to Groups, click Create New Group, name it something like "My Video Practice," set privacy to Private, skip inviting anyone, and create it. Add a note that Facebook changes its menus often, so if a step looks different, search YouTube for "how to create a Facebook group."
+
+1. **Your biggest business lesson.**
+2. **A mentor who made a difference.**
+3. **Advice to your earlier self.** What you wish you knew when you started.
+4. **Your go-to productivity tip.**
+5. **Something you're learning right now.** (Show an alternate option the user can switch to: "Why building an email list matters," for internet marketers.)
+
+Each Round 2 mission adds a checkbox: "I posted this in my test group."
+
+### Round 3: Going Live
+Intro text: "Five short live videos, 1 to 2 minutes each, in your private test group. Do a practice take here first if you want, then go live on Facebook."
+Max length: 120 seconds.
+
+1. **Your morning routine.** How you start your day.
+2. **Work-life harmony.** How you balance it all (or how you're trying to).
+3. **Your favorite quote.** A quote that guides you and why.
+4. **Learning on the go.** A new skill you're picking up in your business.
+5. **Your values in business.** How your personal values or faith shape your decisions.
+
+Each Round 3 mission adds a checkbox: "I went live in my test group."
+
+### Mission screen layout (desktop)
+- Left side: the in-browser recorder (see section 7).
+- Right side: the mission title, a one-line prompt, and the **cue cards**: 3 or 4 short bullet points to talk from. These are bullets, not a script. Add a small note: "Glance, don't read. Talk like you're telling a friend."
+- Under the recorder: "Mark as Done" (red button). When clicked, ask "How did that feel?" with a 1 to 10 slider, save it, then show a short encouraging message and a "Next Mission" button.
+- On mobile, stack the cue cards above the recorder.
+
+A mission can be marked done without recording in the app (some people will record on their phone). Recording is encouraged, not required.
+
+## 7. In-Browser Video Recorder (core feature)
+
+Users must be able to turn on their webcam and record each mission right inside the app.
+
+**Camera setup**
+- Use `navigator.mediaDevices.getUserMedia` for video and audio.
+- Show a live preview, mirrored (like a selfie camera). The saved recording is not mirrored.
+- Dropdowns to choose camera and microphone (`enumerateDevices`). Remember their choice.
+- A small live audio level meter so they can see the mic is working.
+- Clear, friendly messages when permission is denied, no camera is found, or the camera is in use by another app, with steps to fix it in Chrome, Edge, Safari, and Firefox.
+- Turn the camera off when they leave the page or finish recording.
+
+**Recording**
+- Use `MediaRecorder`. Pick a supported format with `MediaRecorder.isTypeSupported`: prefer `video/mp4` when supported (Safari), otherwise `video/webm;codecs=vp9,opus`, then `video/webm`.
+- Big red "Start Recording" button, then a 3, 2, 1 countdown on screen.
+- While recording: a visible timer counting up, a red recording dot, and a "Stop" button.
+- Max length per round (60 seconds for Rounds 1 and 2, 120 seconds for Round 3). At 10 seconds left, show a gentle "Wrap it up" notice. At the limit, stop automatically.
+- The cue cards stay visible next to the camera while recording.
+
+**After recording**
+- Show a playback player of the take.
+- Buttons: "Keep This Take," "Record Again," "Download," "Delete."
+- Users can save multiple takes per mission and pick one as their favorite.
+- Download saves the file to their computer with a clear name like `555-Round1-Mission1-Share-Your-Why.webm` (use .mp4 if recorded in mp4).
+
+**Storage (important)**
+- Store videos privately in the user's own browser using IndexedDB. Do not upload videos to the server. This keeps practice videos 100 percent private (Round 1 is "for your eyes only") and keeps hosting costs at zero.
+- Only save metadata on the server: mission ID, take number, duration in seconds, date recorded, favorite flag, and whether it was downloaded or deleted. Never the video itself. This metadata powers the admin stats in section 13, so record it every time a take is saved, downloaded, or deleted.
+- Show a clear note on the "My Videos" page: "Your videos are saved privately in this browser on this computer. They don't sync to other devices. Download any video you want to keep."
+- Request persistent storage with `navigator.storage.persist()` and show how much space is used (`navigator.storage.estimate()`).
+- If a user clears their browser data, the videos are gone, so prompt them to download favorites after each round.
+
+**My Videos page**
+- A grid of all their saved takes grouped by round and mission, with a thumbnail, duration, and date.
+- Play, download, and delete each one. Confirm before deleting.
+- "Download all from this round" button that downloads them one by one.
+
+## 8. AI-Personalized Cue Cards
+
+Each mission has default cue cards (written below), and the app also generates personalized ones from the user's profile.
+
+- When a user opens a mission for the first time, call an AI model on the server with: the mission title and prompt, the user's answers from "About You" (what they do, who they reach, why they started), and the instructions below. Save the result in the database so it is generated only once per user per mission.
+- Show the personalized cue cards by default, with a small toggle to see the default ones.
+- A "Give me different ideas" button regenerates them, limited to 3 regenerations per mission per user.
+- Rate limit AI calls per user per day (for example 40) to control cost. If the AI call fails or the limit is hit, show the default cue cards and never block the mission.
+
+AI instructions for cue cards:
+- Return 3 or 4 bullets as JSON.
+- Each bullet is a talking point starter, 12 words or fewer.
+- Bullets, not a script. No full sentences to read word for word.
+- Specific to the user's business and audience when it fits the mission. Personal missions (book, hobby, morning routine) should stay personal and only lightly connect to their business.
+- Warm, encouraging, simple language. No hype, no jargon, no em dashes.
+
+Default cue cards (fallback and starting point; write 3 or 4 short bullets for each of the 15 missions in this same style). Example for "Share your why":
+- The moment you decided to start
+- Who you're doing this for
+- What life looks like when it works
+- One word that sums up your why
+
+## 9. Graduation: First Public Video Builder
+
+Unlocks after all 15 missions. Celebrate it with a big congratulations screen showing their baseline comfort score next to their latest score.
+
+Then a guided builder for their first public video using Mark's 5-part long video formula. One section per step, each with a short explanation and a text box:
+
+1. **The Hook.** You have 1 to 3 seconds. Tell them what you're going to share. Mark's rule: master the hook.
+2. **Set the Hook.** Drive it home. Describe the problem they're feeling so they think "you're talking to me."
+3. **First Call to Action (optional).** Who you are and why they should subscribe or follow.
+4. **High-Value Content.** Deliver on the promise. Suggest a list format ("3 ways to...", "5 mistakes...") with fields for each point.
+5. **Final Call to Action.** Tell them exactly what to do next, like "Type INFO below and I'll reach out."
+
+Features:
+- "Help me with my hook" button: AI suggests 3 hook options from their topic and profile (counts toward the daily AI limit).
+- A **Hook Templates** library: a searchable list of fill-in-the-blank hooks. Seed it with 20 sample templates. Admin can import more from a CSV (one template per row, optional category column). Clicking a template drops it into the Hook box.
+- Show the finished outline as a clean bullet "notepad" they can keep next to the recorder.
+- Then open the recorder for this video (max 10 minutes), with the outline shown as cue cards.
+
+## 10. 30-Day Video Challenge
+
+Offered right after graduation.
+
+- A 30-day calendar. Each day they mark "I posted a video today."
+- Streak counter and longest streak.
+- Option to mark a "rest day" for days they don't work (for example Sundays), with the tip: "Film two on Saturday and schedule one for Sunday."
+- Shows their accountability partner's name from My Plan with a reminder to check in with them.
+
+## 11. Progress Page
+
+- Line chart of their "How did that feel?" scores across all 15 missions, with the baseline score as the starting point.
+- Missions completed, videos recorded, total minutes on camera.
+- A short line under the chart: "The first push is the hardest. Then momentum carries you."
+
+## 12. Calls to Action to Mark's Offers
+
+Mark will configure these from the admin panel:
+- A graduation call to action (headline, short text, button label, URL) shown on the graduation screen.
+- An optional smaller call to action at the end of each round.
+- A small "Brought to you by Mark Harbert" footer with a link to markharbert.com.
+
+## 13. Admin Backend (full control)
+
+A separate admin area at `/admin` that Mark logs into to see every account and everything users have done. Admins are set by email in an environment variable `ADMIN_EMAILS` (comma separated). Admins can also promote or remove other admins from inside the backend.
+
+**Activity tracking (build this first)**
+Log every meaningful action to an `activity_events` table with user ID, event type, mission ID if any, extra details as JSON, and timestamp. Events to log:
+- registered, logged in, onboarding completed
+- mission opened, mission completed (with the "How did that feel?" score)
+- recording started, take saved (with duration), take downloaded, take deleted
+- posted in test group checked, went live checked
+- cue cards generated, cue cards regenerated, hook help used
+- round completed, graduated, first public video outline saved
+- 30-day challenge started, challenge day checked, challenge completed
+
+**Dashboard (home of the admin area)**
+- Total registered users, new users today, this week, and this month.
+- Active users in the last 7 and 30 days.
+- Total videos recorded across all users, total minutes on camera, average videos per user.
+- Average comfort score at signup vs. average latest score.
+- Line chart of registrations per day (last 30, 60, 90 days).
+- Line chart of videos recorded per day.
+- Progress funnel with counts and percentages: registered, onboarding done, Round 1 done, Round 2 done, Round 3 done, graduated, 30-day challenge started, 30-day challenge done.
+- Completion rate for each of the 15 missions, so Mark can see where people get stuck.
+- Most common fears picked in the Fear Check.
+
+**Users list**
+- Table of every account: name, email, signup date, last active, current round, missions completed (out of 15), videos recorded, total minutes recorded, latest comfort score, graduated yes or no, ClickFunnels sync status.
+- Search by name or email. Filter by round, graduated, active or inactive, signup date range, and ClickFunnels sync status. Sort by any column.
+- Export the filtered list to CSV.
+
+**User detail page** (click any user)
+- Profile: name, email, signup date, source and UTMs, last login, ClickFunnels contact ID and tags applied.
+- Onboarding answers: fears picked, baseline comfort score, what they do, who they reach, their why, and their My Video Plan.
+- Mission-by-mission view of all 15: done or not, date completed, feeling score, number of takes, total recording time, posted or went live checks.
+- Their comfort score chart over time.
+- Graduation outline and 30-day challenge streak.
+- Full activity timeline (newest first).
+- AI usage for this user.
+- Note: admins see stats about videos, not the videos themselves. The videos stay private in the user's browser.
+
+**Admin actions on a user**
+- Edit name and email (and push the change to ClickFunnels).
+- Reset a mission, a round, or all progress.
+- Unlock a round manually.
+- Send a password reset email.
+- Deactivate or reactivate the account.
+- Delete the account permanently (with a confirm step).
+- Retry the ClickFunnels sync.
+- Make admin or remove admin.
+
+**ClickFunnels sync page**
+- List of failed and pending syncs with the error message, with "Retry" and "Retry All" buttons.
+- The "Test ClickFunnels Connection" button.
+
+**Content editor**
+- Edit mission titles, prompts, default cue cards, mindset cards, and round intros.
+
+**Hook templates**
+- Add, edit, delete, and CSV import.
+
+**Calls to action**
+- Edit the graduation and round-end CTAs.
+
+**Settings**
+- Rename the ClickFunnels tags.
+- Set the daily AI limit per user.
+
+**AI usage**
+- Total AI calls per day and per user, so Mark can watch cost.
+
+## 14. Security and Privacy
+
+- Hash passwords. Use secure, HTTP-only session cookies.
+- Validate and sanitize all inputs on the server.
+- Rate limit signup, login, password reset, and all AI endpoints.
+- Users can only see their own data.
+- Add a simple Privacy page explaining that practice videos stay in their browser and are never uploaded, and what email info is collected.
+- Users can delete their account from Settings, which removes their server data and offers to clear their in-browser videos too.
+
+## 15. Build Order
+
+**Phase 1:** Apply the attached brand guide and build the premium layout first: the left sidebar, the numbered journey, the 555 Plan progress bar, and the dashboard. Then accounts and registration, landing page, the ClickFunnels integration with the sync queue, the activity_events log, onboarding (Fear Check, About You, My Plan), mindset cards, dashboard with the 15 missions and unlock logic, mission screens with default cue cards and "Mark as Done" plus the feeling rating.
+
+**Phase 2:** The in-browser recorder with IndexedDB storage, playback, multiple takes, download, delete, and the My Videos page. Test it in Chrome, Edge, Safari, and Firefox on desktop.
+
+**Phase 3:** AI-personalized cue cards with caching, regeneration limits, rate limits, and fallback.
+
+**Phase 4:** Graduation screen, first public video builder with hook templates and AI hook help, 30-Day Challenge, and the Progress page.
+
+**Phase 5:** The full admin backend (dashboard, users list, user detail pages, admin actions, ClickFunnels sync page, content editor, settings), CTAs, privacy page, account deletion, and a final security and mobile check.
+
+After each phase, give me a short summary of what was built and anything I need to set up (environment variables, API keys, the ClickFunnels token, subdomain, and workspace ID).

@@ -1,0 +1,1 @@
+- [Source requirements](build-scope.md) — original uploaded app brief and brand guide were carried over during project creation.
