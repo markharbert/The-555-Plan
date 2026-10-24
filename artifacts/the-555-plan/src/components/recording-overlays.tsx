@@ -8,10 +8,11 @@ type Props = {
   clock: string;
   wrap: boolean;
   cues: string[];
+  controls?: boolean;
 };
 
 /** Preview-only DOM: never drawn into the recorded stream or thumbnail canvas. */
-export function RecordingOverlays({ mobile, live, recording, stopping, clock, wrap, cues }: Props) {
+export function RecordingOverlays({ mobile, live, recording, stopping, clock, wrap, cues, controls = false }: Props) {
   const [showCues, setShowCues] = useState(true);
   const cueId = useId();
   return (
@@ -28,7 +29,7 @@ export function RecordingOverlays({ mobile, live, recording, stopping, clock, wr
         </div>
       )}
       {mobile && live && cues.length > 0 && (
-        <div className="absolute inset-x-3 flex max-h-[45%] flex-col rounded-xl border border-white/30 bg-black/85 px-3 text-white shadow-lg backdrop-blur-sm" style={{ bottom: wrap ? 64 : 12 }} data-testid="overlay-cue-points">
+        <div className="absolute inset-x-3 flex flex-col rounded-xl border border-white/30 bg-black/85 px-3 text-white shadow-lg backdrop-blur-sm" style={{ bottom: controls ? (wrap ? 144 : 80) : (wrap ? 64 : 12), maxHeight: controls ? (wrap ? '32%' : '42%') : '45%' }} data-testid="overlay-cue-points">
           <div className="flex shrink-0 items-center justify-between gap-2">
             <p className="text-[12px] font-extrabold uppercase tracking-wide">Your cue points</p>
             <button type="button" className="min-h-11 min-w-11 rounded-lg px-2 text-[13px] font-bold text-white underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white" onClick={() => setShowCues((value) => !value)} aria-expanded={showCues} aria-controls={cueId} data-testid="button-toggle-overlay-cues">

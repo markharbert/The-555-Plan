@@ -68,6 +68,7 @@ ClickFunnels requires CLICKFUNNELS_API_TOKEN, CLICKFUNNELS_SUBDOMAIN (bare subdo
 - Record desktop videos in landscape (16:9) and phone/tablet videos in portrait (9:16). This applies to the actual saved file, not just its preview. Keep the chosen frame stable during a take, including phone rotation.
 - iPhone users can export drafts and saved takes through the system share sheet and choose Save Video to save to Photos. Web apps cannot write directly to Photos or confirm that destination. Prepare the local File before the final user tap, preserve its actual MIME/container, retain the take after cancellation/errors, and offer a Files download fallback.
 - On mobile, show the currently selected mission cue points over the live camera preview, with a hide/show control. Show a prominent red recording dot and explicit recording label. These are preview-only overlays and must never be burned into saved videos or thumbnails.
+- Keep mobile camera/start/stop/countdown controls directly on the video, with large tap targets and space reserved below cues and wrap-up notices. Do not duplicate these controls below the preview; desktop controls remain below it.
 
 ## Pointers
 

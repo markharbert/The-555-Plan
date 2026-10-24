@@ -80,6 +80,8 @@ export function Recorder({ mission, cues = mission.cues }: { mission: Mission; c
   const wrap = state === 'recording' && left <= 10;
   const showLive = !!stream && state !== 'review' && state !== 'saving';
   const showDraft = !!draft && (state === 'review' || state === 'saving');
+  const mobile = rec.frame.orientation === 'portrait';
+  const showRecordingControls = state === 'idle' || state === 'requesting' || state === 'ready' || state === 'countdown' || state === 'recording' || state === 'stopping';
 
   if (!rec.support.ok) {
     return (
@@ -92,6 +94,17 @@ export function Recorder({ mission, cues = mission.cues }: { mission: Mission; c
   }
 
   const dlDraft = () => { if (draft) { triggerDownload(draft.blob, fileName(meta, draft.mime)); setDlStarted(true); } };
+  // One set of real controls, rendered inside the preview only on mobile.
+  // Keep the same recorder handlers and test IDs in both layouts.
+  const controlClass = mobile ? 'w-full !min-h-14 !px-3 !py-3 shadow-lg ring-2 ring-white/90' : '';
+  const recordingControls = (
+    <>
+      {(state === 'idle' || state === 'requesting') && <Btn className={controlClass} onClick={() => void rec.enable()} disabled={state === 'requesting'} data-testid="button-enable-camera"><Camera className="h-5 w-5" /> {state === 'requesting' ? 'Starting' : 'Enable Camera'}</Btn>}
+      {state === 'ready' && <Btn className={controlClass} onClick={rec.start} data-testid="button-start-recording">Start Recording</Btn>}
+      {state === 'countdown' && <Btn className={controlClass} variant="secondary" onClick={rec.stop} data-testid="button-cancel-countdown">{mobile ? 'Cancel Countdown' : 'Cancel'}</Btn>}
+      {(state === 'recording' || state === 'stopping') && <Btn className={controlClass} onClick={rec.stop} disabled={state === 'stopping'} data-testid="button-stop-recording"><Square className="h-4 w-4" fill="currentColor" /> {state === 'stopping' ? 'Finishing…' : mobile ? 'Stop Recording' : 'Stop'}</Btn>}
+    </>
+  );
 
   return (
     <Card className="p-7">
@@ -119,8 +132,9 @@ export function Recorder({ mission, cues = mission.cues }: { mission: Mission; c
         {state === 'countdown' && (
           <div className="absolute inset-0 flex items-center justify-center bg-navy/55" aria-live="assertive"><span key={rec.count} className="rise font-display text-[96px] font-black text-white" data-testid="text-countdown">{rec.count}</span></div>
         )}
-        <RecordingOverlays mobile={rec.frame.orientation === 'portrait'} live={showLive} recording={state === 'recording'} stopping={state === 'stopping'} clock={fmtTime(rec.elapsed)} wrap={wrap} cues={cues} />
-        {wrap && <div className="absolute inset-x-0 bottom-0 bg-brand-red px-3 py-2 text-center text-[14px] font-bold text-white" data-testid="text-wrapup">About {Math.ceil(left)} seconds left. Start wrapping up.</div>}
+        <RecordingOverlays mobile={mobile} live={showLive && state !== 'countdown'} recording={state === 'recording'} stopping={state === 'stopping'} clock={fmtTime(rec.elapsed)} wrap={wrap} cues={cues} controls={mobile && showRecordingControls} />
+        {wrap && <div className="absolute inset-x-0 bg-brand-red px-3 py-2 text-center text-[14px] font-bold text-white" style={{ bottom: mobile ? 80 : 0 }} data-testid="text-wrapup">About {Math.ceil(left)} seconds left. Start wrapping up.</div>}
+        {mobile && showRecordingControls && <div className="absolute inset-x-3 bottom-3 z-10" data-testid="controls-on-video">{recordingControls}</div>}
       </div>
 
       {showLive && (
@@ -153,11 +167,8 @@ export function Recorder({ mission, cues = mission.cues }: { mission: Mission; c
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap gap-3">
-        {(state === 'idle' || state === 'requesting') && <Btn onClick={() => void rec.enable()} disabled={state === 'requesting'} data-testid="button-enable-camera"><Camera className="h-5 w-5" /> {state === 'requesting' ? 'Starting' : 'Enable Camera'}</Btn>}
-        {state === 'ready' && <Btn onClick={rec.start} data-testid="button-start-recording">Start Recording</Btn>}
-        {state === 'countdown' && <Btn variant="secondary" onClick={rec.stop} data-testid="button-cancel-countdown">Cancel</Btn>}
-        {(state === 'recording' || state === 'stopping') && <Btn onClick={rec.stop} disabled={state === 'stopping'} data-testid="button-stop-recording"><Square className="h-4 w-4" fill="currentColor" /> Stop</Btn>}
+      {(!mobile || showDraft) && <div className="mt-5 flex flex-wrap gap-3">
+        {!mobile && recordingControls}
         {showDraft && (
           <>
             <Btn onClick={() => void rec.keep()} disabled={state === 'saving'} data-testid="button-keep-take">{state === 'saving' ? 'Saving' : 'Keep This Take'}</Btn>
@@ -167,7 +178,7 @@ export function Recorder({ mission, cues = mission.cues }: { mission: Mission; c
             <Btn variant="small" onClick={() => setAgain('delete')} disabled={state === 'saving'} data-testid="button-delete-draft">Delete</Btn>
           </>
         )}
-      </div>
+      </div>}
       {dlStarted && <p className="mt-3 text-[13px] text-slate-brand" data-testid="text-draft-download">Your browser has been asked to download this video. Check your downloads to confirm it arrived.</p>}
       {rec.saveError && <p role="alert" className="mt-3 text-[14px] text-ink" data-testid="text-save-error">{rec.saveError}</p>}
       {showDraft && !rec.saveError && <p className="mt-3 text-[13px] text-slate-brand">This take is not saved yet. Keep it to save it privately in this browser.</p>}
