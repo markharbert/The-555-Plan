@@ -69,7 +69,7 @@ function Body({ m }: { m: Mission }) {
             <p className="mt-4 text-[14px] text-slate-brand">Glance, do not read. Talk like you are telling a friend.</p>
           </Card>
         <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-          <Recorder mission={m} />
+          <Recorder mission={m} cues={cues} />
         </div>
 
         <Card className="relative h-fit p-7 lg:col-span-2">

@@ -4,6 +4,7 @@ import type { Mission } from '@workspace/api-client-react';
 import { Btn, Card, TextLink } from '@/components/brand';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { TakeCard } from '@/components/take-card';
+import { RecordingOverlays } from '@/components/recording-overlays';
 import { VideoExport } from '@/components/video-export';
 import { useRecorder } from '@/hooks/use-recorder';
 import { useTakes } from '@/hooks/use-takes';
@@ -55,7 +56,7 @@ function useLeaveGuard(dirty: boolean, onLeave: () => void) {
   return { pending: !!pending, stay: () => setPending(null), confirm };
 }
 
-export function Recorder({ mission }: { mission: Mission }) {
+export function Recorder({ mission, cues = mission.cues }: { mission: Mission; cues?: string[] }) {
   const rec = useRecorder(mission.id, mission.maxSeconds);
   const takes = useTakes(mission.id);
   const { state, draft, stream } = rec;
@@ -118,12 +119,7 @@ export function Recorder({ mission }: { mission: Mission }) {
         {state === 'countdown' && (
           <div className="absolute inset-0 flex items-center justify-center bg-navy/55" aria-live="assertive"><span key={rec.count} className="rise font-display text-[96px] font-black text-white" data-testid="text-countdown">{rec.count}</span></div>
         )}
-        {(state === 'recording' || state === 'stopping') && (
-          <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-navy/80 px-3 py-1 text-white" data-testid="status-recording">
-            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand-red" />
-            <span className="font-display text-[15px] font-bold tabular-nums" data-testid="text-recording-timer">{fmtTime(rec.elapsed)}</span>
-          </div>
-        )}
+        <RecordingOverlays mobile={rec.frame.orientation === 'portrait'} live={showLive} recording={state === 'recording'} stopping={state === 'stopping'} clock={fmtTime(rec.elapsed)} wrap={wrap} cues={cues} />
         {wrap && <div className="absolute inset-x-0 bottom-0 bg-brand-red px-3 py-2 text-center text-[14px] font-bold text-white" data-testid="text-wrapup">About {Math.ceil(left)} seconds left. Start wrapping up.</div>}
       </div>
 
