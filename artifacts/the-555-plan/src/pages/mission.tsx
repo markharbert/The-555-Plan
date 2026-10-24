@@ -8,7 +8,8 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescript
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { useInvalidateAll } from '@/hooks/use-journey';
-import { errMsg } from '@/lib/errors';
+import { errMsg, isTemporaryApiError } from '@/lib/errors';
+import { Recorder } from '@/components/recorder';
 
 const praise = (n: number) => (n >= 8 ? 'That felt good, and you earned it.' : n >= 5 ? 'Solid. Every take makes the next one easier.' : 'Honest answer. Showing up is the whole point.');
 
@@ -56,9 +57,8 @@ function Body({ m }: { m: Mission }) {
       <p className="mt-4 max-w-[640px] text-slate-brand">{m.prompt}</p>
       <p className="mt-3 inline-flex items-center gap-2 text-[14px] font-medium text-teal-brand"><Timer className="h-4 w-4" strokeWidth={2} /> Keep it to {maxLabel}</p>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <div className="space-y-6">
-          <Card className="p-7">
+      <div className="mt-10 grid items-start gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+          <Card className="p-7 lg:sticky lg:top-6 lg:col-start-2 lg:row-start-1">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="font-display text-[16px] font-extrabold uppercase text-navy">Your cue cards</h2>
               {hasAlt && <button type="button" onClick={() => setAlt((a) => !a)} className="text-[14px] font-medium text-linkblue underline underline-offset-4" data-testid="button-toggle-alternate">{alt ? 'Back to the original' : 'Try this option: ' + m.alternateTitle}</button>}
@@ -68,13 +68,11 @@ function Body({ m }: { m: Mission }) {
             </ul>
             <p className="mt-4 text-[14px] text-slate-brand">Glance, do not read. Talk like you are telling a friend.</p>
           </Card>
-          <Card className="p-7">
-            <h2 className="font-display text-[16px] font-extrabold uppercase text-navy">Recording</h2>
-            <p className="mt-2 text-[15px] text-slate-brand">In-browser recording is coming in a later release. For now, record on your phone or computer, then come back and mark this mission done.</p>
-          </Card>
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+          <Recorder mission={m} />
         </div>
 
-        <Card className="relative h-fit p-7">
+        <Card className="relative h-fit p-7 lg:col-span-2">
           {result && <Burst />}
           {!done && !rating && (
             <div>
@@ -105,6 +103,7 @@ function Body({ m }: { m: Mission }) {
               <div className="mb-4 flex justify-center"><AnimatedCheck size={56} /></div>
               <h2 className="h-display text-[24px]">{result ? (roundDone ? `Round ${m.round} complete` : 'Mission complete') : 'You did this one'}</h2>
               <p className="mt-2 text-slate-brand">{result ? praise(score) : `It felt like a ${m.feelingScore ?? score} out of 10.`}</p>
+              {result && roundDone && <p className="mt-3 text-[14px] text-slate-brand" data-testid="text-download-reminder">Before you move on, download your favorite takes from <TextLink href="/videos">My Videos</TextLink>. They live only in this browser.</p>}
               {needsFlag && result === null && (
                 <label className="mt-5 flex items-start gap-3 rounded-lg border border-coolgray p-4 text-left"><Checkbox checked={m.round === 2 ? m.posted : m.wentLive} disabled className="mt-1" data-testid="checkbox-flag-done" /><span>{flagLabel}</span></label>
               )}
@@ -136,7 +135,7 @@ export default function MissionPage() {
   const mid = Number(id);
   const q = useGetMission(mid, { query: { enabled: Number.isFinite(mid), queryKey: getGetMissionQueryKey(mid) } });
   if (q.isLoading) return <PageSkeleton />;
-  if (q.isError) {
+  if (q.isError && (!q.data || !isTemporaryApiError(q.error))) {
     const msg = errMsg(q.error, '');
     return msg ? <LockedPanel message={msg} to="/dashboard" label="My Journey" /> : <ErrorState onRetry={() => q.refetch()} />;
   }

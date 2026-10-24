@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useClerk } from '@clerk/react';
 import { getGetSettingsQueryKey, useGetSettings, useHealthCheck, getHealthCheckQueryKey, useUpdateProfile } from '@workspace/api-client-react';
 import { Btn, Card, ErrorState, PageHeader, PageSkeleton } from '@/components/brand';
+import { StorageStatus } from '@/components/storage-status';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useInvalidateAll } from '@/hooks/use-journey';
@@ -47,6 +48,7 @@ export default function SettingsPage() {
           <div><p className="eyebrow">Account sync</p><p className="mt-1" data-testid="text-sync-status">{sync[p.syncStatus]}</p></div>
           <div><p className="eyebrow">Service</p><p className="mt-1">{health.isError ? 'Having trouble connecting' : health.data ? 'Running normally' : 'Checking'}</p></div>
         </Card>
+        <Card className="p-8"><p className="eyebrow mb-2">Video storage on this computer</p><StorageStatus /></Card>
         <div><Btn variant="secondary" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-settings-logout">Log out</Btn></div>
       </div>
     </div>

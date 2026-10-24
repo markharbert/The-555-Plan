@@ -112,3 +112,11 @@ test("editable program copy respects required language rules", () => {
   assert.ok(!/\bfree\b/i.test(text));
   assert.ok(!text.includes("\u2014"));
 });
+
+test("dashboard uses actual cumulative recording metadata and does not alter mission progress", () => {
+  const journey = buildJourney(member(), completedThrough(2), program, { videosRecorded: 4, minutesOnCamera: 2.5 });
+  assert.equal(journey.stats.videosRecorded, 4);
+  assert.equal(journey.stats.minutesOnCamera, 2.5);
+  assert.equal(journey.stats.completed, 2);
+  assert.equal(journey.nextPath, "/mission/3");
+});

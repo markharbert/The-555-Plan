@@ -9,6 +9,97 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Personal recording metadata only, including deletion markers
+ */
+export const GetTakesResponseItem = zod.object({
+  "id": zod.string(),
+  "missionId": zod.number().int(),
+  "takeNumber": zod.number().int(),
+  "durationSeconds": zod.number(),
+  "recordedAt": zod.string(),
+  "favorite": zod.boolean(),
+  "downloadedAt": zod.string().nullable(),
+  "deletedAt": zod.string().nullable()
+})
+export const GetTakesResponse = zod.array(GetTakesResponseItem)
+
+
+/**
+ * @summary Idempotently save metadata after a video is kept in IndexedDB
+ */
+export const SaveTakeParams = zod.object({
+  "takeId": zod.coerce.string().uuid()
+})
+
+export const saveTakeBodyMissionIdMax = 15;
+
+export const saveTakeBodyDurationSecondsMin = 0.1;
+export const saveTakeBodyDurationSecondsMax = 122;
+
+
+
+export const SaveTakeBody = zod.object({
+  "missionId": zod.number().int().min(1).max(saveTakeBodyMissionIdMax),
+  "durationSeconds": zod.number().min(saveTakeBodyDurationSecondsMin).max(saveTakeBodyDurationSecondsMax),
+  "recordedAt": zod.coerce.date()
+})
+
+export const SaveTakeResponse = zod.object({
+  "id": zod.string(),
+  "missionId": zod.number().int(),
+  "takeNumber": zod.number().int(),
+  "durationSeconds": zod.number(),
+  "recordedAt": zod.string(),
+  "favorite": zod.boolean(),
+  "downloadedAt": zod.string().nullable(),
+  "deletedAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Log a favorite, download, or deletion without sending video bytes
+ */
+export const UpdateTakeParams = zod.object({
+  "takeId": zod.coerce.string().uuid()
+})
+
+export const UpdateTakeBody = zod.object({
+  "operationId": zod.string().uuid(),
+  "favorite": zod.boolean().optional(),
+  "downloaded": zod.boolean().optional(),
+  "deleted": zod.boolean().optional()
+})
+
+export const UpdateTakeResponse = zod.object({
+  "id": zod.string(),
+  "missionId": zod.number().int(),
+  "takeNumber": zod.number().int(),
+  "durationSeconds": zod.number(),
+  "recordedAt": zod.string(),
+  "favorite": zod.boolean(),
+  "downloadedAt": zod.string().nullable(),
+  "deletedAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Record a camera recording start once per event
+ */
+export const recordingStartedBodyMissionIdMax = 15;
+
+
+
+export const RecordingStartedBody = zod.object({
+  "operationId": zod.string().uuid(),
+  "missionId": zod.number().int().min(1).max(recordingStartedBodyMissionIdMax)
+})
+
+export const RecordingStartedResponse = zod.object({
+  "recorded": zod.boolean()
+})
+
+
+/**
  * @summary Public program content
  */
 export const GetContentResponse = zod.object({

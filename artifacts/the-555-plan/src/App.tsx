@@ -18,7 +18,8 @@ import VideoPlan from '@/pages/video-plan';
 import Mindset from '@/pages/mindset';
 import Round from '@/pages/round';
 import MissionPage from '@/pages/mission';
-import { Videos, ProgressPage, FuturePage } from '@/pages/misc';
+import { ProgressPage, FuturePage } from '@/pages/misc';
+import { Videos } from '@/pages/videos';
 import SettingsPage from '@/pages/settings';
 import { basePath } from '@/lib/base';
 

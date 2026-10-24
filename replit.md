@@ -6,7 +6,7 @@ A guided video-confidence app with 15 missions in three rounds, personal plannin
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server on its managed PORT
 - `pnpm --filter @workspace/the-555-plan run dev` — run the member web app
-- `pnpm --filter @workspace/scripts run test:journey` — test onboarding, sequential locks, undo, progress, and score logic
+- `pnpm --filter @workspace/scripts run test:journey` — test onboarding, sequential locks, undo, progress, scores, and recording metadata boundaries
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
@@ -42,7 +42,11 @@ A guided video-confidence app with 15 missions in three rounds, personal plannin
 
 Phase 1 is implemented: branded landing, accounts, member layout and dashboard, onboarding, mindset, 15 sequential missions, default cues, completion ratings, undo protection, activity events, and background ClickFunnels contact/tag sync.
 
-Not implemented yet: Phase 2 recorder and video library, Phase 3 AI personalization, Phase 4 graduation/challenge/advanced progress, Phase 5 admin controls and account deletion. These are visibly identified as later releases, not simulated functionality.
+Phase 2 is implemented: camera/microphone selection, mirrored live preview, audio meter, countdown and bounded recording, playback, private per-account IndexedDB storage, multiple takes and favorites, downloads and confirmed deletion, grouped My Videos library, storage estimates, durable metadata retries, and cumulative recording statistics. Saved media never leave the browser.
+
+Recording metadata is a small JSON-only API. Saved take IDs and action operation IDs make offline replay idempotent. Counts and minutes are cumulative practice totals including deleted saved takes. Keeping a take does not complete a mission. Network failures must not block local playback/download or destroy a kept file.
+
+Not implemented yet: Phase 3 AI personalization, Phase 4 graduation/challenge/advanced progress, Phase 5 admin controls and account deletion. These are visibly identified as later releases, not simulated functionality.
 
 ClickFunnels requires CLICKFUNNELS_API_TOKEN, CLICKFUNNELS_SUBDOMAIN (bare subdomain, not a URL), and CLICKFUNNELS_WORKSPACE_ID in project secrets. Without them, jobs stay pending for later delivery. ADMIN_EMAILS is a comma-separated verified-email allowlist; no default administrator is seeded.
 
@@ -58,6 +62,9 @@ ClickFunnels requires CLICKFUNNELS_API_TOKEN, CLICKFUNNELS_SUBDOMAIN (bare subdo
 - Do not send tag_ids in a ClickFunnels contact upsert: that replaces unrelated tags. Apply each program tag through applied_tags instead.
 - Do not bypass authentication to screenshot member pages. Signed-out screenshots can verify public pages only.
 - Keep canonical Clerk hostname key selection, proxy middleware order, and unconditional proxyUrl support for production.
+- Treat a camera recording and an unsaved draft as navigation-sensitive state. Release tracks on exit and warn before discarding.
+- Every local recording, preference, and outbox operation must be scoped to its Clerk account. An outbox must stop when that account changes; its expected-account header must be checked before metadata writes.
+- Requesting browser persistent storage is best effort, not a backup. Always explain browser-data deletion and recommend downloading important takes.
 
 ## Pointers
 

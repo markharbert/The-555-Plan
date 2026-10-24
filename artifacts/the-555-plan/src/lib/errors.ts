@@ -3,3 +3,8 @@ export function errMsg(e: unknown, fallback = 'That did not save. Please try aga
   if (x?.data && typeof x.data.error === 'string') return x.data.error;
   return fallback;
 }
+
+export function isTemporaryApiError(e: unknown): boolean {
+  const status = (e as { status?: number } | null)?.status;
+  return status === undefined || status === 408 || status === 429 || status >= 500;
+}

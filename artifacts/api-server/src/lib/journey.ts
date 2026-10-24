@@ -19,7 +19,7 @@ export async function getProgram() {
 
 export type Program = Awaited<ReturnType<typeof getProgram>>;
 
-export function buildJourney(user: AppUser, progress: MissionProgress[], program: Program) {
+export function buildJourney(user: AppUser, progress: MissionProgress[], program: Program, recordings = { videosRecorded: 0, minutesOnCamera: 0 }) {
   const onboarded = user.welcomeDone && user.fearCheckDone && user.planDone && user.mindsetDone;
   const completedIds = new Set(progress.filter(p => p.completed).map(p => p.missionId));
   const firstIncomplete = program.missions.find(m => !completedIds.has(m.id));
@@ -53,7 +53,7 @@ export function buildJourney(user: AppUser, progress: MissionProgress[], program
     profile: publicProfile(user), missions, rounds: program.rounds, mindset: program.mindset,
     stats: {
       completed: done.length, percent: Math.round(done.length / 15 * 100),
-      videosRecorded: 0, minutesOnCamera: 0, baselineComfort: user.baselineComfort,
+      videosRecorded: recordings.videosRecorded, minutesOnCamera: recordings.minutesOnCamera, baselineComfort: user.baselineComfort,
       latestComfort: recentScore ?? user.baselineComfort,
     },
     nextPath, nextTitle,

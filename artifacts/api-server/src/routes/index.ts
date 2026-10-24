@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import healthRouter from "./health";
 import accountRouter from "./account";
 import journeyRouter from "./journey";
+import takesRouter from "./takes";
 import { requireIdentity } from "../middlewares/member";
 import { getProgram } from "../lib/journey";
 import { GetContentResponse } from "@workspace/api-zod";
@@ -14,6 +15,7 @@ router.get("/content", async (_req, res): Promise<void> => {
 });
 router.use(requireIdentity);
 router.use(accountRouter);
+router.use(takesRouter);
 router.use(journeyRouter);
 
 export default router;

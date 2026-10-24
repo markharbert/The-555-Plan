@@ -1,21 +1,7 @@
 import { Clock, Lock, Smile, Video } from 'lucide-react';
 import { getGetActivityQueryKey, useGetActivity } from '@workspace/api-client-react';
-import { Btn, Card, LockedPanel, PageHeader, Skel } from '@/components/brand';
+import { Card, LockedPanel, PageHeader, Skel } from '@/components/brand';
 import { JourneyPage } from '@/components/journey-page';
-
-export function Videos() {
-  return (
-    <div>
-      <PageHeader eyebrow="My Videos" title="Your videos will live here" intro="In-browser recording and your video library arrive in a later release. Until then, record on your phone or computer and mark each mission done." />
-      <Card className="mx-auto flex max-w-[620px] flex-col items-center p-10 text-center">
-        <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-coolwhite text-navy"><Video className="h-6 w-6" strokeWidth={1.75} /></span>
-        <h2 className="h-display text-[22px]">Nothing to show yet</h2>
-        <p className="mt-2 text-slate-brand">When recording opens, your takes will be saved privately in this browser.</p>
-        <div className="mt-6"><Btn variant="secondary" href="/dashboard">Back to My Journey</Btn></div>
-      </Card>
-    </div>
-  );
-}
 
 const label = (t: string) => t.replace(/[_-]/g, ' ').replace(/^./, (c) => c.toUpperCase());
 

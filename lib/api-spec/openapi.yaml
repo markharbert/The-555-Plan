@@ -11,6 +11,67 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /takes:
+    get:
+      operationId: getTakes
+      summary: Personal recording metadata only, including deletion markers
+      responses:
+        "200":
+          description: Take metadata, never video bytes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/VideoTake" }
+  /takes/{takeId}:
+    parameters:
+      - in: path
+        name: takeId
+        required: true
+        schema: { type: string, format: uuid }
+    put:
+      operationId: saveTake
+      summary: Idempotently save metadata after a video is kept in IndexedDB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TakeInput" }
+      responses:
+        "200":
+          description: Saved take metadata
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VideoTake" }
+    patch:
+      operationId: updateTake
+      summary: Log a favorite, download, or deletion without sending video bytes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TakeUpdate" }
+      responses:
+        "200":
+          description: Updated take metadata
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VideoTake" }
+  /recording-starts:
+    post:
+      operationId: recordingStarted
+      summary: Record a camera recording start once per event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RecordingStartInput" }
+      responses:
+        "200":
+          description: Event logged
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RecordingAcknowledgement" }
   /content:
     get:
       operationId: getContent
@@ -148,6 +209,47 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    VideoTake:
+      type: object
+      required: [id, missionId, takeNumber, durationSeconds, recordedAt, favorite, downloadedAt, deletedAt]
+      properties:
+        id: { type: string }
+        missionId: { type: integer }
+        takeNumber: { type: integer }
+        durationSeconds: { type: number }
+        recordedAt: { type: string }
+        favorite: { type: boolean }
+        downloadedAt: { type: ["string", "null"] }
+        deletedAt: { type: ["string", "null"] }
+    TakeInput:
+      type: object
+      additionalProperties: false
+      required: [missionId, durationSeconds, recordedAt]
+      properties:
+        missionId: { type: integer, minimum: 1, maximum: 15 }
+        durationSeconds: { type: number, minimum: 0.1, maximum: 122 }
+        recordedAt: { type: string, format: date-time }
+    TakeUpdate:
+      type: object
+      additionalProperties: false
+      required: [operationId]
+      properties:
+        operationId: { type: string, format: uuid }
+        favorite: { type: boolean }
+        downloaded: { type: boolean }
+        deleted: { type: boolean }
+    RecordingStartInput:
+      type: object
+      additionalProperties: false
+      required: [operationId, missionId]
+      properties:
+        operationId: { type: string, format: uuid }
+        missionId: { type: integer, minimum: 1, maximum: 15 }
+    RecordingAcknowledgement:
+      type: object
+      required: [recorded]
+      properties:
+        recorded: { type: boolean }
     Enrollment:
       type: object
       required: [enrolled]

@@ -8,16 +8,18 @@ import {
 import { requireMember } from "../middlewares/member";
 import { getProgram, buildJourney } from "../lib/journey";
 import { event, enqueueSync } from "../lib/events";
+import { getRecordingStats } from "../lib/takes";
 
 const router: IRouter = Router();
 router.use(requireMember);
 
 router.get("/journey", async (_req, res): Promise<void> => {
   const user = res.locals.member as AppUser;
-  const [progress, program] = await Promise.all([
+  const [progress, program, recordings] = await Promise.all([
     db.select().from(missionProgressTable).where(eq(missionProgressTable.userId, user.id)), getProgram(),
+    getRecordingStats(user.id),
   ]);
-  res.json(GetJourneyResponse.parse(buildJourney(user, progress, program)));
+  res.json(GetJourneyResponse.parse(buildJourney(user, progress, program, recordings)));
 });
 
 router.get("/missions/:missionId", async (req, res): Promise<void> => {
@@ -53,7 +55,8 @@ router.patch("/missions/:missionId", async (req, res): Promise<void> => {
     const [user] = await tx.select().from(usersTable).where(eq(usersTable.id, res.locals.member.id)).for("update");
     if (!user) return { error: "Account not found." };
     const progress = await tx.select().from(missionProgressTable).where(eq(missionProgressTable.userId, user.id));
-    const journey = buildJourney(user, progress, program);
+    const recordings = await getRecordingStats(user.id, tx);
+    const journey = buildJourney(user, progress, program, recordings);
     const mission = journey.missions.find(m => m.id === id);
     if (!mission?.unlocked) return { error: "Finish the previous journey step or mission first." };
     if (mission.completed === data.completed) return { journey };
@@ -81,7 +84,7 @@ router.patch("/missions/:missionId", async (req, res): Promise<void> => {
     if (data.completed && data.posted) await event(tx, user.id, "posted_in_test_group_checked", id);
     if (data.completed && data.wentLive) await event(tx, user.id, "went_live_checked", id);
     const updated = await tx.select().from(missionProgressTable).where(eq(missionProgressTable.userId, user.id));
-    const newJourney = buildJourney(user, updated, program);
+    const newJourney = buildJourney(user, updated, program, recordings);
     const roundDone = newJourney.missions.filter(m => m.round === mission.round).every(m => m.completed);
     if (data.completed && roundDone) {
       await event(tx, user.id, "round_completed", id, { round: mission.round });

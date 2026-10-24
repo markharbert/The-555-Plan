@@ -5,6 +5,53 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface VideoTake {
+  id: string;
+  missionId: number;
+  takeNumber: number;
+  durationSeconds: number;
+  recordedAt: string;
+  favorite: boolean;
+  /** @nullable */
+  downloadedAt: string | null;
+  /** @nullable */
+  deletedAt: string | null;
+}
+
+export interface TakeInput {
+  /**
+     * @minimum 1
+     * @maximum 15
+     */
+  missionId: number;
+  /**
+     * @minimum 0.1
+     * @maximum 122
+     */
+  durationSeconds: number;
+  recordedAt: string;
+}
+
+export interface TakeUpdate {
+  operationId: string;
+  favorite?: boolean;
+  downloaded?: boolean;
+  deleted?: boolean;
+}
+
+export interface RecordingStartInput {
+  operationId: string;
+  /**
+     * @minimum 1
+     * @maximum 15
+     */
+  missionId: number;
+}
+
+export interface RecordingAcknowledgement {
+  recorded: boolean;
+}
+
 export type UserProfileRole = typeof UserProfileRole[keyof typeof UserProfileRole];
 
 

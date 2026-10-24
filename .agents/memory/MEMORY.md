@@ -1,1 +1,2 @@
 - [Source requirements](build-scope.md) — original uploaded app brief and brand guide were carried over during project creation.
+- [Recorder testing](recorder-testing.md) — verify actual engine and media-device availability; synthetic streams can exercise real recording and storage.

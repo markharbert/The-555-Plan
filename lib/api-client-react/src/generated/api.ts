@@ -35,7 +35,12 @@ import type {
   MissionInput,
   ProfileInput,
   ProgramContent,
-  UserProfile
+  RecordingAcknowledgement,
+  RecordingStartInput,
+  TakeInput,
+  TakeUpdate,
+  UserProfile,
+  VideoTake
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -64,6 +69,373 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetTakesUrl = () => {
+
+
+
+
+  return `/api/takes`
+}
+
+/**
+ * @summary Personal recording metadata only, including deletion markers
+ */
+export const getTakes = async ( options?: Parameters<typeof customFetch>[1]): Promise<VideoTake[]> => {
+
+  return customFetch<VideoTake[]>(getGetTakesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTakesQueryKey = () => {
+    return [
+    `/api/takes`
+    ] as const;
+    }
+
+
+export const getGetTakesQueryOptions = <TData = Awaited<ReturnType<typeof getTakes>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTakes>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTakesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTakes>>> = ({ signal }) => getTakes({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTakes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTakesQueryResult = NonNullable<Awaited<ReturnType<typeof getTakes>>>
+export type GetTakesQueryError = ErrorType<unknown>
+
+
+export function useGetTakes<TData = Awaited<ReturnType<typeof getTakes>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTakes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTakes>>,
+          TError,
+          Awaited<ReturnType<typeof getTakes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTakes<TData = Awaited<ReturnType<typeof getTakes>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTakes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTakes>>,
+          TError,
+          Awaited<ReturnType<typeof getTakes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTakes<TData = Awaited<ReturnType<typeof getTakes>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTakes>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Personal recording metadata only, including deletion markers
+ */
+
+export function useGetTakes<TData = Awaited<ReturnType<typeof getTakes>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTakes>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTakesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveTakeUrl = (takeId: string,) => {
+
+
+
+
+  return `/api/takes/${takeId}`
+}
+
+/**
+ * @summary Idempotently save metadata after a video is kept in IndexedDB
+ */
+export const saveTake = async (takeId: string,
+    takeInput: TakeInput, options?: Parameters<typeof customFetch>[1]): Promise<VideoTake> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<VideoTake>(getSaveTakeUrl(takeId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(takeInput)
+  }
+);}
+
+
+
+
+
+export const getSaveTakeMutationKey = () => ['saveTake'] as const;
+
+export const getSaveTakeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveTake>>, TError,SaveTakeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveTake>>, TError,SaveTakeMutationVariables, TContext> => {
+
+const mutationKey = getSaveTakeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveTake>>, SaveTakeMutationVariables> = (props) => {
+          const {takeId,data} = props ?? {};
+
+          return  saveTake(takeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveTakeMutationResult = NonNullable<Awaited<ReturnType<typeof saveTake>>>
+    export type SaveTakeMutationBody = BodyType<TakeInput>
+    export type SaveTakeMutationError = ErrorType<unknown>
+    export type SaveTakeMutationVariables = {takeId: string;data: BodyType<TakeInput>}
+
+    /**
+ * @summary Idempotently save metadata after a video is kept in IndexedDB
+ */
+export const useSaveTake = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveTake>>, TError,SaveTakeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveTake>>,
+        TError,
+        SaveTakeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveTakeMutationOptions(options), queryClient);
+    }
+
+export const getUpdateTakeUrl = (takeId: string,) => {
+
+
+
+
+  return `/api/takes/${takeId}`
+}
+
+/**
+ * @summary Log a favorite, download, or deletion without sending video bytes
+ */
+export const updateTake = async (takeId: string,
+    takeUpdate: TakeUpdate, options?: Parameters<typeof customFetch>[1]): Promise<VideoTake> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<VideoTake>(getUpdateTakeUrl(takeId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(takeUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateTakeMutationKey = () => ['updateTake'] as const;
+
+export const getUpdateTakeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTake>>, TError,UpdateTakeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateTake>>, TError,UpdateTakeMutationVariables, TContext> => {
+
+const mutationKey = getUpdateTakeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTake>>, UpdateTakeMutationVariables> = (props) => {
+          const {takeId,data} = props ?? {};
+
+          return  updateTake(takeId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateTakeMutationResult = NonNullable<Awaited<ReturnType<typeof updateTake>>>
+    export type UpdateTakeMutationBody = BodyType<TakeUpdate>
+    export type UpdateTakeMutationError = ErrorType<unknown>
+    export type UpdateTakeMutationVariables = {takeId: string;data: BodyType<TakeUpdate>}
+
+    /**
+ * @summary Log a favorite, download, or deletion without sending video bytes
+ */
+export const useUpdateTake = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTake>>, TError,UpdateTakeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateTake>>,
+        TError,
+        UpdateTakeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateTakeMutationOptions(options), queryClient);
+    }
+
+export const getRecordingStartedUrl = () => {
+
+
+
+
+  return `/api/recording-starts`
+}
+
+/**
+ * @summary Record a camera recording start once per event
+ */
+export const recordingStarted = async (recordingStartInput: RecordingStartInput, options?: Parameters<typeof customFetch>[1]): Promise<RecordingAcknowledgement> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<RecordingAcknowledgement>(getRecordingStartedUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(recordingStartInput)
+  }
+);}
+
+
+
+
+
+export const getRecordingStartedMutationKey = () => ['recordingStarted'] as const;
+
+export const getRecordingStartedMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordingStarted>>, TError,RecordingStartedMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordingStarted>>, TError,RecordingStartedMutationVariables, TContext> => {
+
+const mutationKey = getRecordingStartedMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordingStarted>>, RecordingStartedMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  recordingStarted(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordingStartedMutationResult = NonNullable<Awaited<ReturnType<typeof recordingStarted>>>
+    export type RecordingStartedMutationBody = BodyType<RecordingStartInput>
+    export type RecordingStartedMutationError = ErrorType<unknown>
+    export type RecordingStartedMutationVariables = {data: BodyType<RecordingStartInput>}
+
+    /**
+ * @summary Record a camera recording start once per event
+ */
+export const useRecordingStarted = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordingStarted>>, TError,RecordingStartedMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof recordingStarted>>,
+        TError,
+        RecordingStartedMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRecordingStartedMutationOptions(options), queryClient);
+    }
 
 export const getGetContentUrl = () => {
 

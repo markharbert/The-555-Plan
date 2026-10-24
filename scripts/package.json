@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:journey": "tsx --test ../artifacts/api-server/src/lib/journey.test.ts",
+    "test:journey": "tsx --test ../artifacts/api-server/src/lib/*.test.ts",
     "hello": "tsx ./src/hello.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

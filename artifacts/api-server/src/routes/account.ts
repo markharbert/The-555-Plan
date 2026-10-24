@@ -119,7 +119,7 @@ router.get("/settings", requireMember, (_req, res) => {
   const user = res.locals.member as AppUser;
   res.json(GetSettingsResponse.parse({
     profile: publicProfile(user), emailConsent: user.emailConsent,
-    clickfunnelsConfigured: clickfunnelsConfigured(), phase: 1,
+    clickfunnelsConfigured: clickfunnelsConfigured(), phase: 2,
   }));
 });
 

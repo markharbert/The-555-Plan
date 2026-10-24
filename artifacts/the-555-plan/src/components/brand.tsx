@@ -54,8 +54,8 @@ export function MarkLogo({ className = 'h-10' }: { className?: string }) {
   return <img src={asset('mark-harbert-logo.png')} alt="Mark Harbert" className={`w-auto ${className}`} />;
 }
 
-export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-xl border border-coolgray bg-white ${className}`}>{children}</div>;
+export function Card({ children, className = '', ...rest }: { children: ReactNode; className?: string; 'data-testid'?: string }) {
+  return <div className={`rounded-xl border border-coolgray bg-white ${className}`} {...rest}>{children}</div>;
 }
 
 export function PageHeader({ eyebrow, title, intro, step }: { eyebrow?: string; title: string; intro?: string; step?: number }) {
