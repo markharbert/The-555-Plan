@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { CloudOff, Download, Play, Star, Trash2, Video } from 'lucide-react';
 import { useAuth } from '@clerk/react';
 import { Btn } from '@/components/brand';
+import { VideoExport } from '@/components/video-export';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { getBlob } from '@/lib/take-store';
-import { fmtBytes, fmtTime } from '@/lib/recording-support';
+import { fileName, fmtBytes, fmtTime } from '@/lib/recording-support';
 import type { TakeView, useTakes } from '@/hooks/use-takes';
 
 export type MissionMeta = { id: number; round?: number; position?: number; title?: string };
@@ -74,11 +75,12 @@ export function TakeCard({ take, meta, api }: { take: TakeView; meta: MissionMet
         <p className="mt-1 text-[13px] text-slate-brand" data-testid={`status-take-${t}`}>
           {!has ? 'Recorded on another device or browser. No video file in this browser.' : take.status === 'pending' ? 'Waiting to sync details' : take.status === 'problem' ? 'Details could not sync' : 'Saved in this browser'}
           {has && take.local ? ` · ${fmtBytes(take.local.size)}` : ''}
-          {take.downloadedAt ? ' · Download started' : ''}
+          {take.downloadedAt ? ' · Export requested' : ''}
         </p>
         {take.status !== 'synced' && has && <p className="mt-1 inline-flex items-center gap-1 text-[12px] text-slate-brand"><CloudOff className="h-3 w-3" /> Your video is safe here either way.</p>}
         {has && (
           <div className="mt-3 flex flex-wrap gap-2">
+            <VideoExport key={`${api.uid}:${t}`} name={fileName(meta, take.local?.mime ?? 'video/webm', take.takeNumber)} testId={`button-save-to-photos-${t}`} loadBlob={() => api.uid ? getBlob(api.uid, t) : Promise.resolve(null)} onExport={() => api.act(t, 'download')} />
             <button type="button" className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border-2 border-coolgray px-3 text-[13px] font-bold uppercase text-navy hover:border-navy" onClick={() => run(() => api.act(t, take.favorite ? 'unfavorite' : 'favorite'))} aria-pressed={take.favorite} data-testid={`button-favorite-${t}`}><Star className="h-4 w-4" fill={take.favorite ? 'currentColor' : 'none'} />{take.favorite ? 'Favorite' : 'Favorite'}</button>
             <button type="button" className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border-2 border-coolgray px-3 text-[13px] font-bold uppercase text-navy hover:border-navy" onClick={() => run(async () => { if (!(await api.download(take, meta))) throw new Error('x'); })} data-testid={`button-download-${t}`}><Download className="h-4 w-4" /> Download</button>
             <button type="button" className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border-2 border-coolgray px-3 text-[13px] font-bold uppercase text-navy hover:border-brand-red" onClick={() => setDel(true)} data-testid={`button-delete-${t}`}><Trash2 className="h-4 w-4" /> Delete</button>
@@ -89,7 +91,7 @@ export function TakeCard({ take, meta, api }: { take: TakeView; meta: MissionMet
       <Player take={take} open={play} onClose={() => setPlay(false)} />
       <AlertDialog open={del} onOpenChange={setDel}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete this take?</AlertDialogTitle><AlertDialogDescription>The video is removed from this browser for good. It has not been downloaded unless you see Download started above. This cannot be undone.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogHeader><AlertDialogTitle>Delete this take?</AlertDialogTitle><AlertDialogDescription>The video is removed from this browser for good. Before deleting, check that your download or save to Photos actually arrived. An export request is not a confirmed backup. This cannot be undone.</AlertDialogDescription></AlertDialogHeader>
           <AlertDialogFooter><AlertDialogCancel>Keep it</AlertDialogCancel><Btn onClick={() => { setDel(false); void run(() => api.act(t, 'delete')); }} data-testid={`button-confirm-delete-${t}`}>Delete video</Btn></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -66,6 +66,7 @@ ClickFunnels requires CLICKFUNNELS_API_TOKEN, CLICKFUNNELS_SUBDOMAIN (bare subdo
 - Every local recording, preference, and outbox operation must be scoped to its Clerk account. An outbox must stop when that account changes; its expected-account header must be checked before metadata writes.
 - Requesting browser persistent storage is best effort, not a backup. Always explain browser-data deletion and recommend downloading important takes.
 - Record desktop videos in landscape (16:9) and phone/tablet videos in portrait (9:16). This applies to the actual saved file, not just its preview. Keep the chosen frame stable during a take, including phone rotation.
+- iPhone users can export drafts and saved takes through the system share sheet and choose Save Video to save to Photos. Web apps cannot write directly to Photos or confirm that destination. Prepare the local File before the final user tap, preserve its actual MIME/container, retain the take after cancellation/errors, and offer a Files download fallback.
 
 ## Pointers
 

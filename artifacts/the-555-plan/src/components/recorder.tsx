@@ -4,6 +4,7 @@ import type { Mission } from '@workspace/api-client-react';
 import { Btn, Card, TextLink } from '@/components/brand';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { TakeCard } from '@/components/take-card';
+import { VideoExport } from '@/components/video-export';
 import { useRecorder } from '@/hooks/use-recorder';
 import { useTakes } from '@/hooks/use-takes';
 import { fileName, fmtTime, supportMessage, triggerDownload } from '@/lib/recording-support';
@@ -165,6 +166,7 @@ export function Recorder({ mission }: { mission: Mission }) {
           <>
             <Btn onClick={() => void rec.keep()} disabled={state === 'saving'} data-testid="button-keep-take">{state === 'saving' ? 'Saving' : 'Keep This Take'}</Btn>
             <Btn variant="secondary" onClick={() => setAgain(true)} disabled={state === 'saving'} data-testid="button-record-again">Record Again</Btn>
+            <VideoExport blob={draft.blob} name={fileName(meta, draft.mime)} testId="button-save-draft-to-photos" disabled={state === 'saving'} />
             <Btn variant="secondary" onClick={dlDraft} data-testid="button-download-draft"><Download className="h-4 w-4" /> Download</Btn>
             <Btn variant="small" onClick={() => setAgain('delete')} disabled={state === 'saving'} data-testid="button-delete-draft">Delete</Btn>
           </>
