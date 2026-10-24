@@ -19,7 +19,7 @@ function Thumb({ blob }: { blob: Blob | null }) {
     setUrl(u);
     return () => URL.revokeObjectURL(u);
   }, [blob]);
-  return url ? <img src={url} alt="" className="h-full w-full object-cover" /> : <Video className="h-7 w-7 text-slate-brand" strokeWidth={1.5} />;
+  return url ? <img src={url} alt="" className="h-full w-full object-contain" /> : <Video className="h-7 w-7 text-slate-brand" strokeWidth={1.5} />;
 }
 
 function Player({ take, open, onClose }: { take: TakeView; open: boolean; onClose: () => void }) {
@@ -44,7 +44,7 @@ function Player({ take, open, onClose }: { take: TakeView; open: boolean; onClos
       <DialogContent className="max-w-[760px]">
         <DialogTitle className="font-display uppercase text-navy">Take {take.takeNumber}</DialogTitle>
         <DialogDescription className="sr-only">Saved video playback</DialogDescription>
-        {url && <video src={url} controls playsInline autoPlay className="w-full rounded-lg bg-navy" data-testid="video-saved-player" />}
+        {url && <video src={url} controls playsInline autoPlay className="max-h-[70dvh] w-full rounded-lg bg-navy object-contain" data-testid="video-saved-player" />}
         {missing && <p className="text-slate-brand">This video could not be read from this browser.</p>}
       </DialogContent>
     </Dialog>

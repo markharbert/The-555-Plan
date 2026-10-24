@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@clerk/react';
 import { keepTake, getPrefs, queueStart, setPrefs, type TakeRow } from '@/lib/take-store';
 import { describeCamError, detectSupport, pickMime, type CamError } from '@/lib/recording-support';
+import { recordingFrame, drawFramedVideo, framedRecordingStream } from '@/lib/recording-frame';
 
 export type RecState = 'idle' | 'requesting' | 'ready' | 'countdown' | 'recording' | 'stopping' | 'review' | 'saving';
 export type Draft = { blob: Blob; url: string; mime: string; durationSeconds: number; recordedAt: string; thumb: Blob | null };
@@ -13,6 +14,7 @@ export function useRecorder(missionId: number, maxSeconds: number) {
   const [error, setError] = useState<CamError | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [frame, setFrame] = useState(recordingFrame);
   const [devices, setDevices] = useState<Devices>({ cams: [], mics: [] });
   const [camId, setCamId] = useState('');
   const [micId, setMicId] = useState('');
@@ -27,6 +29,7 @@ export function useRecorder(missionId: number, maxSeconds: number) {
 
   const R = useRef({
     uid: userId ?? null as string | null, stream: null as MediaStream | null, rec: null as MediaRecorder | null, chunks: [] as Blob[],
+    frame, stopFraming: null as (() => void) | null,
     mime: '', startedAt: 0, ctx: null as AudioContext | null, raf: 0, tick: 0, cd: 0, thumb: null as Blob | null, thumbTimer: 0,
     draftUrl: null as string | null, state: 'idle' as RecState, gen: 0, camId: '', micId: '', autoStop: 0, wallStart: '',
   });
@@ -43,6 +46,7 @@ export function useRecorder(missionId: number, maxSeconds: number) {
   };
   const stopTracks = () => {
     const r = R.current;
+    r.stopFraming?.(); r.stopFraming = null;
     r.stream?.getTracks().forEach((t) => { t.onended = null; t.stop(); });
     r.stream = null;
     stopMeter();
@@ -110,8 +114,10 @@ export function useRecorder(missionId: number, maxSeconds: number) {
     stopTracks();
     setError(null);
     set('requesting');
-    const build = (c?: string, m?: string, exact = false): MediaStreamConstraints => ({
-      video: c ? { deviceId: { exact: c }, width: { ideal: 1280 }, height: { ideal: 720 } } : { width: { ideal: 1280 }, height: { ideal: 720 } },
+    const nextFrame = recordingFrame();
+    r.frame = nextFrame; setFrame(nextFrame);
+    const build = (c?: string, m?: string): MediaStreamConstraints => ({
+      video: { ...(c ? { deviceId: { exact: c } } : { facingMode: { ideal: 'user' } }), width: { ideal: nextFrame.width }, height: { ideal: nextFrame.height }, aspectRatio: { ideal: nextFrame.width / nextFrame.height }, frameRate: { ideal: 30, max: 30 } },
       audio: m ? { deviceId: { exact: m }, echoCancellation: true, noiseSuppression: true } : { echoCancellation: true, noiseSuppression: true },
     });
     try {
@@ -163,10 +169,11 @@ export function useRecorder(missionId: number, maxSeconds: number) {
     if (!v || !v.videoWidth) return;
     try {
       const w = 480;
-      const h = Math.round((v.videoHeight / v.videoWidth) * w);
+      const h = Math.round((r.frame.height / r.frame.width) * w);
       const c = document.createElement('canvas');
       c.width = w; c.height = h;
-      c.getContext('2d')?.drawImage(v, 0, 0, w, h);
+      const ctx = c.getContext('2d');
+      if (ctx) drawFramedVideo(ctx, v, r.frame, w, h);
       c.toBlob((b) => { if (b) r.thumb = b; }, 'image/jpeg', 0.7);
     } catch { /* thumbnails are optional */ }
   };
@@ -211,7 +218,9 @@ export function useRecorder(missionId: number, maxSeconds: number) {
     if (!s) { set('idle'); return; }
     try {
       r.mime = pickMime();
-      const rec = r.mime ? new MediaRecorder(s, { mimeType: r.mime }) : new MediaRecorder(s);
+      const framed = framedRecordingStream(s, preview.current, r.frame);
+      r.stopFraming = framed.stop;
+      const rec = r.mime ? new MediaRecorder(framed.stream, { mimeType: r.mime }) : new MediaRecorder(framed.stream);
       r.chunks = []; r.thumb = null;
       rec.ondataavailable = (e) => { if (e.data && e.data.size) r.chunks.push(e.data); };
       rec.onstop = () => finish(rec);
@@ -233,7 +242,7 @@ export function useRecorder(missionId: number, maxSeconds: number) {
       if (r.uid) void queueStart(r.uid, missionId);
     } catch (e) {
       stopTracks();
-      setError({ kind: 'other', title: 'This browser could not start the recorder', body: (e as Error)?.message ? 'Try a different browser such as the latest Chrome or Edge.' : 'Try again.' });
+      setError({ kind: 'other', title: 'This browser could not start the recorder', body: (e as Error)?.message || 'Try a different browser such as the latest Chrome or Edge.' });
       set('idle');
     }
   };
@@ -306,6 +315,6 @@ export function useRecorder(missionId: number, maxSeconds: number) {
   const busy = state === 'countdown' || state === 'recording' || state === 'stopping' || state === 'saving' || state === 'requesting';
   const reset = useCallback(() => { teardown(); setDraft(null); set('idle'); }, [teardown]);
 
-  return { support, state, error, notice, stream, devices, camId, micId, level, count, elapsed, draft, saveError, saved, persist, dirty, busy, preview, maxSeconds,
+  return { support, state, error, notice, stream, frame, devices, camId, micId, level, count, elapsed, draft, saveError, saved, persist, dirty, busy, preview, maxSeconds,
     enable, changeDevice, start, stop: stopRec, keep, discard, reset, clearSaved: () => setSaved(null), clearError: () => setError(null) };
 }

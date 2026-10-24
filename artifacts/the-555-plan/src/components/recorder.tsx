@@ -102,7 +102,10 @@ export function Recorder({ mission }: { mission: Mission }) {
         <p className="mb-4 flex gap-2 rounded-lg bg-coolwhite p-3 text-[14px] text-slate-brand" data-testid="text-embedded-notice"><ExternalLink className="mt-0.5 h-4 w-4 shrink-0" /> If the camera is blocked here, open The 555 Plan in its own browser tab. Preview windows often block camera access.</p>
       )}
 
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-navy" data-testid="panel-recorder">
+      <p className="mb-3 text-[13px] text-slate-brand" data-testid="text-recording-format">
+        {rec.frame.orientation === 'portrait' ? 'Portrait · 9:16 · Optimized for mobile' : 'Landscape · 16:9 · Optimized for desktop'}
+      </p>
+      <div className="relative mx-auto w-full overflow-hidden rounded-lg bg-navy" style={{ aspectRatio: `${rec.frame.width} / ${rec.frame.height}`, maxWidth: rec.frame.orientation === 'portrait' ? 360 : undefined }} data-testid="panel-recorder">
         <video ref={live} muted playsInline autoPlay className={`h-full w-full object-cover [transform:scaleX(-1)] ${showLive ? '' : 'hidden'}`} data-testid="video-live-preview" />
         {showDraft && draft && <video key={draft.url} src={draft.url} controls playsInline className="h-full w-full bg-navy object-contain" data-testid="video-draft-player" />}
         {!showLive && !showDraft && (
